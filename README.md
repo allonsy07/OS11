@@ -1,5 +1,5 @@
 # Cpu Scheduling Algorithm
-This is Cpu Scheduling Algorithm implemented by python.
+This is Cpu Scheduling Algorithm implemented in python.
 
 Korea Univ. COSE341(02) TermProject Team 11
 
