@@ -59,18 +59,18 @@ def shortest_remainig_time_first(process_list: List[Process]):
             else: # idle일 경우 ready process를 바로 실행
                 is_running = ready_process[2]
 
-        # 실행 결과 print
+        ## 실행 결과 print
         if is_running:
             print(time, is_running.p_id, is_running.bt) # 시간, PID, 남은 Burst time
         else:
             print(time, 'Idle')
 
-        # 타이머 실행
-        time += 1
+        # 프로세스 실행 상태 확인
         if is_running:
             is_running.bt -= 1
             if is_running.bt == 0: # burst time이 0이 되면 실행 종료
                 is_running = None
-    return None
+        # 타이머 실행
+        time += 1
 
 shortest_remainig_time_first(process_input())
