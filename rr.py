@@ -24,6 +24,11 @@ def process_input():
         process_list.append(process)
     return process_list
 
+def get_time_quantum():
+    # time quantum도 일단 터미널로 받습니다.
+    print("Time quantum 입력 (정수)")
+    return int(input())
+
 
 def round_robin(process_list: List[Process], time_quantum: int):
     # 필요한 자료구조 정의
@@ -68,4 +73,4 @@ def round_robin(process_list: List[Process], time_quantum: int):
                 is_running = None
     return None
 
-round_robin(process_input(), 2)
+round_robin(process_input(), get_time_quantum())
