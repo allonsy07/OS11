@@ -43,6 +43,7 @@ def round_robin(process_list: List[Process], time_quantum: int):
 
     # 알고리즘 시작
     time = 0 # 타이머
+    time_tq = 0 # Time Quantum 지났는지 확인용 타이머
     is_running = None # Idle일 경우 None, 프로세스 실행 중일 경우 실행 중인 프로세스
     tq = time_quantum # Time Quantum
 
@@ -53,24 +54,28 @@ def round_robin(process_list: List[Process], time_quantum: int):
                 ready_queue.put(p)
             del remaining_process[time] # enqueue된 프로세스들은 remaining process에서 제거
 
-        if time % tq == 0 or not is_running: # time quantum이 지났거나 idle이면 inturrupt
+        if time_tq % tq == 0 or not is_running: # time quantum이 지났거나 idle이면 inturrupt
             if not ready_queue.empty(): # ready queue가 비어있지 않으면
                 if is_running:
                     ready_queue.put(is_running) # 실행 중인 프로세스를 inturrupt하고 준비 큐에 삽입
                 is_running = ready_queue.get() # 준비 큐 가장 앞의 프로세스를 받아옵니다.
 
-        # 실행 결과 print
+        ## 실행 결과 print
         if is_running:
             print(time, is_running.p_id, is_running.bt) # 시간, PID, 남은 Burst time
         else:
             print(time, 'Idle')
 
-        # 타이머 실행
-        time += 1
+        # 프로세스 실행 상태 확인
         if is_running:
             is_running.bt -= 1
             if is_running.bt == 0: # burst time이 0이 되면 실행 종료
                 is_running = None
-    return None
+                time_tq = 0
+    
+        # 타이머 실행
+        time += 1
+        if is_running:
+            time_tq += 1
 
 round_robin(process_input(), get_time_quantum())
