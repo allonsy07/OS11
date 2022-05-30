@@ -18,7 +18,7 @@ def nonpreemtive_priority(data: List[dict]):
     while priority:
         for val in priority:
             if arrived(sorted_priority, curr_time, val[-1]):
-                curr_tiem += val[2]
+                curr_time += val[2]
                 data[val[-1]]["curr_time"] = curr_time
                 priority.remove(val)
     return data
