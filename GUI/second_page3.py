@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QCheckBox, QDesktopWidget, QLabel, QTableWidget, QAbstractItemView, QTableWidgetItem
 from algorithm import schedulingPP, schedulingSRTF, schedulingRR
 
-class Secon3(QWidget):
+class Second3(QWidget):
   def __init__(self):
     super().__init__() 
     self.current = [-1]      
