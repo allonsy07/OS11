@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QCheckBox, QDesktopWidget, QLabel, QTableWidget, QAbstractItemView, QTableWidgetItem
 from algorithm import schedulingPP, schedulingSRTF, schedulingRR
 
-class Second3(QWidget):
+class Secon3(QWidget):
   def __init__(self):
     super().__init__() 
     self.current = [-1]      
@@ -124,7 +124,7 @@ class Second3(QWidget):
                        "border-width: 3px;"
                        "border-color: #1E90FF")   
     output.move(100, 570)
-    output.resize(350, 50)     
+    output.resize(425, 50)     
 
     output2 = QLabel(self)
     output2.setStyleSheet("color: blue;"
@@ -133,7 +133,7 @@ class Second3(QWidget):
                        "border-width: 3px;"
                        "border-color: #1E90FF")   
     output2.move(100, 620)
-    output2.resize(350, 50) 
+    output2.resize(425, 50) 
 
     output3 = QLabel(self)
     output3.setStyleSheet("color: blue;"
@@ -142,7 +142,7 @@ class Second3(QWidget):
                        "border-width: 3px;"
                        "border-color: #1E90FF")   
     output3.move(100, 670)
-    output3.resize(350, 50)    
+    output3.resize(425, 50)    
 
     output4 = QLabel(self)
     output4.setStyleSheet("color: blue;"
@@ -151,7 +151,7 @@ class Second3(QWidget):
                        "border-width: 3px;"
                        "border-color: #1E90FF")   
     output4.move(100, 720)
-    output4.resize(350, 50) 
+    output4.resize(425, 50) 
 
     self.text1 = QLabel('평균 대기시간:                ', self)
     self.text1.move(105, 575)
@@ -171,11 +171,17 @@ class Second3(QWidget):
     self.text3_font.setPointSize(30)
     self.text3.setFont(self.text3_font) 
 
-    self.text4 = QLabel('추천 알고리즘:                ', self)                             
+    self.text4 = QLabel('추천 알고리즘:', self)                             
     self.text4.move(105, 725)
     self.text4_font = self.text4.font()
     self.text4_font.setPointSize(30)
-    self.text4.setFont(self.text4_font)    
+    self.text4.setFont(self.text4_font)
+
+    self.text5 = QLabel('                                                                              ',self)                             
+    self.text5.move(280, 730)
+    self.text5_font = self.text5.font()
+    self.text5_font.setPointSize(25)
+    self.text5.setFont(self.text5_font)        
 
     self.table2 = QTableWidget(self)
     self.table2.setRowCount(3)
@@ -259,10 +265,15 @@ class Second3(QWidget):
           self.draw_output()
 
   def recommendation(self):
-      self.rec = sorted(self.output, key = lambda x : (x[-4], x[-3], x[-2]))
-      self.top = self.rec[0][-1]  
+      self.rec1 = sorted(self.output, key = lambda x : (x[-4], x[-3], x[-2]))
+      self.rec2 = sorted(self.output, key = lambda x : (x[-3], x[-2], x[-4]))
+      self.rec3 = sorted(self.output, key = lambda x : (x[-2], x[-3], x[-4]))
+      self.top1 = self.rec1[0][-1]  
+      self.top2 = self.rec2[0][-1]
+      self.top3 = self.rec3[0][-1]
 
-      self.text4.setText('추천 알고리즘: {}'.format(self.top))
+      self.text4.setText('추천 알고리즘:')
+      self.text5.setText(' {},   {},   {}'.format(self.top1, self.top2, self.top3))
 
   def draw_output(self, alpha = 1):
       if alpha == 1:
@@ -411,5 +422,3 @@ class Second3(QWidget):
       for i in range(len(RT)):
           val = QTableWidgetItem(str(RT[i]))
           self.table2.setItem(2, i, val)
-
-     
