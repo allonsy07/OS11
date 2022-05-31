@@ -243,8 +243,8 @@ class Second2(QWidget):
           GC, WT, TA, RT, AWT, ATT, ART = schedulingSRTF(self.data)
           self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'SRTF'])
           
-        #   GC, WT, TA, RT, AWT, ATT, ART = schedulingRR(self.data)
-        #   self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'RR'])
+          GC, WT, TA, RT, AWT, ATT, ART = schedulingRR(self.data)
+          self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'RR'])
 
         #   GC, WT, TA, RT, AWT, ATT, ART = schedulingNPP(self.data)
         #   self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'NPP'])
