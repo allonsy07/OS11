@@ -1,3 +1,7 @@
+from typing import List
+from queue import Queue, PriorityQueue # 우선순위 큐
+
+
 def schedulingPP(data):
     # data 는 리스트 형태로 각 항이 아래와 같음https://lavender-agenda-0e5.notion.site/Human-Object-Interaction-4e3f94908b744b828cd4fb68c67f0928
     # 0: pid, 1: 도착시간, 2: burst_time, 3: 우선순위(낮은게 우선), 4: Time quantum
@@ -82,10 +86,6 @@ def schedulingPP(data):
                 return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
 
 
-
-from typing import List
-from queue import Queue, PriorityQueue # 우선순위 큐
-
 # 프로세스 클래스 정의
 class Process:
     def __init__(self, data: List[List]):
@@ -96,6 +96,7 @@ class Process:
         self.wt = 0 # Waiting time
         self.tt = None # Turnaround time
         self.rt = None # Response time
+        
 
 def schedulingSRTF(data: List[List]):
     # 입력을 프로세스 클래스로 바꾸어서 리스트에 정리
@@ -182,7 +183,7 @@ def schedulingSRTF(data: List[List]):
     return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
 
 
-def rr(data: List[List]):
+def schedulingRR(data: List[List]):
     # 입력을 프로세스 클래스로 바꾸어서 리스트에 정리
     process_list = []
     for d in data:

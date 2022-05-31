@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QCheckBox, QDesktopWidget, QLabel, QTableWidget, QAbstractItemView, QTableWidgetItem
-from algorithm import schedulingPP, schedulingSRTF
+from algorithm import schedulingPP, schedulingSRTF, schedulingRR
 
 class Second(QWidget):
   def __init__(self):
@@ -243,8 +243,8 @@ class Second(QWidget):
           GC, WT, TA, RT, AWT, ATT, ART = schedulingSRTF(self.data)
           self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'SRTF'])
           
-        #   GC, WT, TA, RT, AWT, ATT, ART = schedulingRR(self.data)
-        #   self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'RR'])
+          GC, WT, TA, RT, AWT, ATT, ART = schedulingRR(self.data)
+          self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'RR'])
 
         #   GC, WT, TA, RT, AWT, ATT, ART = schedulingNPP(self.data)
         #   self.output.append([GC, WT, TA, RT, AWT, ATT, ART, 'NPP'])
