@@ -178,7 +178,7 @@ class Second(QWidget):
     self.text4.setFont(self.text4_font)
 
     self.text5 = QLabel('                                                                              ',self)                             
-    self.text5.move(280, 730)
+    self.text5.move(300, 730)
     self.text5_font = self.text5.font()
     self.text5_font.setPointSize(25)
     self.text5.setFont(self.text5_font)        
@@ -273,7 +273,7 @@ class Second(QWidget):
       self.top3 = self.rec3[0][-1]
 
       self.text4.setText('추천 알고리즘:')
-      self.text5.setText(' {},   {},   {}'.format(self.top1, self.top2, self.top3))
+      self.text5.setText(' {}, {}, {}'.format(self.top1, self.top2, self.top3))
 
   def draw_output(self, alpha = 1):
       if alpha == 1:
@@ -422,3 +422,5 @@ class Second(QWidget):
       for i in range(len(RT)):
           val = QTableWidgetItem(str(RT[i]))
           self.table2.setItem(2, i, val)
+
+     
