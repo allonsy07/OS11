@@ -182,7 +182,7 @@ def schedulingSRTF(data: List[List]):
     return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
 
 
-def rr(data: List[List]):
+def schedulingRR(data: List[List]):
     # 입력을 프로세스 클래스로 바꾸어서 리스트에 정리
     process_list = []
     for d in data:

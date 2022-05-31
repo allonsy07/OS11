@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QPushButton, QCheckBox, QDesktopWidget, QLabel, QTableWidget, QAbstractItemView, QTableWidgetItem
-from algorithm import schedulingPP, schedulingSRTF
+from algorithm import schedulingPP, schedulingSRTF, schedulingRR
 
 class Second(QWidget):
   def __init__(self):
