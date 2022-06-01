@@ -34,3 +34,11 @@ avg_WT = 0
 for i in WT:
     avg_WT += i
 avg_WT = (avg_WT / n)
+
+
+print("Process\t  Burst Time\t  Waiting Time\t  TurnAround Time")
+for i in range(0,n):
+ print(str(processes[i])+"\t\t"+str(bursttime[i])+"\t\t"+str(waitingtime[i])+"\t\t"+str(turnaroundtime[i]))
+ print("\n")
+print("Average Waitingtime is: "+str(averagewaitingtime))
+print("Average TurnAround Time is: "+str(avgoftat)
