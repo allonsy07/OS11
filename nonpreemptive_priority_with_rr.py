@@ -1,6 +1,7 @@
 from typing import List
 from queue import PriorityQueue
-from rr import round_robin
+# from rr import round_robin
+from GUI.algorithm import schedulingRR
 
 # 프로세스 행 클래스 정의
 class Process:
@@ -115,7 +116,7 @@ def nonpreemptive_priority_with_rr(data: List[Process]):
             if is_running: # 우선순위를 비교해보자!
                 if ready_process[2].prt == is_running.prt: # 우선순위가 같다!
                     same_priority = [is_running, ready_process[2]]
-                    round_robin(same_priority, time_quantum)
+                    schedulingRR(same_priority, time_quantum)
                 else:
                     ready_queue.put(ready_process)
             else:
@@ -136,20 +137,20 @@ def nonpreemptive_priority_with_rr(data: List[Process]):
                 p.wt += 1
         time += 1
 
-        # response time 계산, 출력값 정리
-        waiting_time_list = []
-        turnaround_time_list = []
-        response_time_list = []
+    # response time 계산, 출력값 정리
+    waiting_time_list = []
+    turnaround_time_list = []
+    response_time_list = []
 
-        for p in process_list:
-            p.rt = ganttchart.index(p.p_id) - p.at # response time 계산
-            waiting_time_list.append(p.wt)
-            turnaround_time_list.append(p.tt)
-            response_time_list.append(p.rt)
+    for p in process_list:
+        p.rt = ganttchart.index(p.p_id) - p.at # response time 계산
+        waiting_time_list.append(p.wt)
+        turnaround_time_list.append(p.tt)
+        response_time_list.append(p.rt)
 
-        average_waiting_time = sum(waiting_time_list) / len(process_list)
-        average_turnaround_time = sum(turnaround_time_list) / len(process_list)
-        average_response_time = sum(response_time_list) / len(process_list)
+    average_waiting_time = sum(waiting_time_list) / len(process_list)
+    average_turnaround_time = sum(turnaround_time_list) / len(process_list)
+    average_response_time = sum(response_time_list) / len(process_list)
 
 
-        return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
+    return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
