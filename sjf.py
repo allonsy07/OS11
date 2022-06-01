@@ -33,3 +33,10 @@ for i in range(1,len(bursttime)):
  avgoftat+=turnaroundtime[i]
 averagewaitingtime=float(averagewaitingtime)/n
 avgoftat=float(avgoftat)/n'
+
+print("Process\t  Burst Time\t  Waiting Time\t  TurnAround Time")
+for i in range(0,n):
+ print(str(processes[i])+"\t\t"+str(bursttime[i])+"\t\t"+str(waitingtime[i])+"\t\t"+str(turnaroundtime[i]))
+ print("\n")
+print("Average Waitingtime is: "+str(averagewaitingtime))
+print("Average TurnAround Time is: "+str(avgoftat)
