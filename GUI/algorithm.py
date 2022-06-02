@@ -372,7 +372,8 @@ def schedulingSJF(data: List[List]):
 
         # 실행 중인 프로세스가 끝나면 ready queue의 프로세스 중 가장 burst time이 짧은 프로세스를 불러옵니다.
         if not is_running:
-            is_running = ready_queue.get()[2]
+            if not ready_queue.empty():
+                is_running = ready_queue.get()[2]
 
         # 간트 차트 
         if is_running:
@@ -531,7 +532,8 @@ def schedulingFCFS(data: List[List]):
             del remaining_process[time]
 
         if not is_running:
-            is_running = ready_queue.get()
+            if not ready_queue.empty():
+                is_running = ready_queue.get()
 
         if is_running:
             ganttchart.append(is_running.p_id)
