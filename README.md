@@ -12,6 +12,16 @@ Korea Univ. COSE341(02) TermProject Team 11
 + Preemptive Priority (선점 Priority)
 + Non-Preemptive Priority with RR (비선점 Priority with RR)
 
+# Requirements
++ Python > 3
++ PyQt5
+
+# Execute
+```python
+cd GUI
+python execute.py
+```
+
 # Team Member
 + 주재원
 + 김재훈
