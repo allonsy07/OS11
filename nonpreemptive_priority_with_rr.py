@@ -1,156 +1,120 @@
-from typing import List
-from queue import PriorityQueue
-# from rr import round_robin
-from GUI.algorithm import schedulingRR
+def schedulingNonpreemptivePriority(data):
+    # data 는 리스트 형태로 각 항이 아래와 같음
+    # 0: pid, 1: 도착시간, 2: burst_time, 3: 우선순위(낮은게 우선), 4: Time quantum
+    # 데이터변환
+    process_data = []
 
-# 프로세스 행 클래스 정의
-class Process:
-    def __init__(self, data: List[List]):
-        self.p_id = data[0]
-        self.at = data[1]
-        self.bt = data[2]
-        self.prt = data[3]
-        self.wt = 0
-        self.tt = None
-        self.rt = None
+    for i in range(len(data)):
+        temporary = []
+        process_id = data[i][0]
+        arrival_time = data[i][1]
+        burst_time = data[i][2]
+        priority = data[i][3]
+        temporary.extend([process_id, arrival_time, burst_time, burst_time,
+                          priority, 0, 0, 0])  # 0: pid, 1: 도착시간, 2: burst_time, 3: 남은 burst_time, 4: 우선순위(낮은게 우선), 5:레디큐로 감, 6:start, 7:end
+        process_data.append(temporary)
+    print(process_data)
+    # sort the data according to arrival time
+    process_data.sort(key=lambda x: x[1])
+    ganttchart = []  # 프로세스 실행 sequence
+    time_clock = 0 #진행시간
+    ready_queue = [] #레디큐
+    stage = 0
+    meta_data = []
+    print(process_data, len(process_data), process_data[0][1])
+    while 1:
+        #if stage>10: break
+        stage += 1
+        print("{}번째 단계".format(stage))
+        #move into ready_queue
+        for i in range(len(process_data)):
+            #print("flag", i)
+            if process_data[i][1] <= time_clock and process_data[i][5] != 1:
+                process_data[i][5] = 1
+                ready_queue.append(process_data[i])
+        print("before sort ready_queue", ready_queue)
 
-        
-def process_input():
-    # 일단 입력은 터미널로 받습니다.
-    process_list = []
+        #priority check and sort
+        if len(ready_queue)!=0:
+            if len(ganttchart) != 0 and ready_queue[0][0] == ganttchart[-1]: #간트차트 비어있지 않다 == 전에 실행된 것이 있음 + 아직 실행 중인 것이 끝나지 않음
+                print("ganttchart[-1]", ganttchart[-1])
+                temp = ready_queue[1:]
+                print("temptemp", temp)
+                temp.sort(key=lambda x: (x[4], x[1]), reverse=False) #뒤에 들어온 것이 있다면 뒤에 것들만 정렬
+                for step in range(len(ready_queue) - 1):
+                    ready_queue[step + 1] = temp[step]
+            else: #그렇지 않다면 앗쎄이 정리
+                ready_queue.sort(key=lambda x: (x[4], x[1]), reverse=False)
+            # 실행 by 1 time clock
+            print("after sort ready_queue", ready_queue)
 
-    print("프로세스 개수 입력")
-    process_count = int(input())
-
-    print("프로세스 개수만큼 Arrival time, Burst time 입력 (띄어쓰기로 구분)") # 순서대로 P1, P2, ...
-    for pc in range(process_count):
-        process = Process()
-        process.p_id = "P" + str(pc + 1) # P1, P2, P3, ...
-        process.at, process.bt = list(map(int, input().split()))
-        process_list.append(process)
-    return process_list
-
-def get_time_quantum():
-    # time quantum도 일단 터미널로 받습니다.
-    print("Time quantum 입력 (정수)")
-    return int(input())
-
-
-
-# def arrived(priority_list: List, curr_time: float, idx: int):
-#     for i in priority_list:
-#         if i[-1] == idx:
-#             if i[1] <= curr_time:
-#                 return True
-#     return False
-
-
-# def nonpreemptive_priority_with_rr(data: List[List], time_quantum: float):
-
-#     # priority = []
-#     idx = 0
-#     curr_time = 0
-#     for i in data:
-#         priority.append([i["priority"], i["arrival_time"], i["burst_time"], idx])
-#         idx += 1
-#     sorted_priority = sorted(priority, key = lambda x: x[0], reverse = True)
-
-#     sorting_dict = {}
-#     for i in sorted_priority:
-#         if i[0] in sorting_dict.keys():
-#             sorting_dict[i[0]].append(i)
-#         else:
-#             sorting_dict[i[0]] = [i] # 2d array
-
-    
-#     while sorting_dict:
-#         for val in sorting_dict:
-#             if len(sorting_dict[val]) >= 2:
-#                 round_robin(sorting_dict[val], time_quantum= TIME_QUANTUM)
-#             else: 
-#                 if arrived(sorting_dict[val], curr_time, val[-1]):
-#                     curr_time += val[2]
-#                     data[val[-1]]["curr_time"] = curr_time
-#                     sorting_dict[val].remove(val)
-#     return "Done."
-
-
-
-def nonpreemptive_priority_with_rr(data: List[Process]):
-    ganttchart = []
-
-    process_list = []
-    arrival_time_list = []
-
-    remaining_process = {}
-    ready_queue = PriorityQueue()
-
-    for d in data:
-        process = Process(d)
-        process_list.append(process)
-
-    for p in process_list:
-        if p.at not in remaining_process:
-            remaining_process[p.at] = [p]
-            arrival_time_list.append(p.at)
+            if ready_queue[0][2] == ready_queue[0][3]: # 처음 들어오는 것
+                ready_queue[0][6] = time_clock
+            ganttchart.append(ready_queue[0][0])
+            print("ganttchart", ganttchart)
+            time_clock += 1
+            ready_queue[0][3] -= 1
+            if ready_queue[0][3] <= 0: #실행 다한 프로세스는 ready_queue에서 삭제
+                ready_queue[0][7] = time_clock
+                meta_data.append(ready_queue[0])
+                del ready_queue[0]
         else:
-            remaining_process[p.at].append(p)
-        
-    for a in arrival_time_list:
-        remaining_process[a] = sorted(remaining_process[a], key = lambda x: x.prt, reverse = True)
-    
-
-    # start this algorithm
-    time = 0
-    is_running = None 
-    time_quantum = data[0][4]    
-
-    while is_running or remaining_process or not ready_queue.empty():
-        if time in remaining_process:
-            for p in remaining_process[time]:
-                ready_queue.put((p.bt, time, p))
-            del remaining_process[time]
-        
-        if not ready_queue.empty():
-            ready_process = ready_queue.get()
-            if is_running: # 우선순위를 비교해보자!
-                if ready_process[2].prt == is_running.prt: # 우선순위가 같다!
-                    same_priority = [is_running, ready_process[2]]
-                    schedulingRR(same_priority, time_quantum)
-                else:
-                    ready_queue.put(ready_process)
+            terminator = 0
+            for j in range(len(process_data)):
+                if process_data[j][5]!=0:
+                    terminator += 1
+            if terminator != len(process_data):
+                ganttchart.append("idle")
+                time_clock += 1
             else:
-                is_running = ready_process[2]
-        if is_running:
-            print(time, is_running.p_id, is_running.bt)
-            ganttchart.append(is_running.p_id)
-        else:
-            print(time, "Idle")
-            ganttchart.append("idle")
-        if is_running:
-            is_running.bt -= 1
-            if is_running.bt == 0:
-                is_running.tt = (time + 1) - is_running.at
-                is_running = None
-        for p in process_list:
-            if p is not is_running and p.bt > 0 and p.at <= time:
-                p.wt += 1
-        time += 1
+                # process 입력 순서대로
+                response_time_list = []
+                waiting_time_list = []
+                turnaround_time_list = []
+                total_turnaround_time = 0
+                total_waiting_time = 0
+                total_response_time= 0
+                for j in range(len(data)):
+                    for k in range(len(process_data)):
+                        if data[j][0] == process_data[k][0]:
+                            # process_data ->  0: pid, 1: 도착시간, 2: burst_time, 3: 남은 burst_time, 4: 우선순위(낮은게 우선), 5:레디큐로 감, 6:start, 7:end
+                            response_time = process_data[k][6] - process_data[k][1]
+                            turnaround_time = process_data[k][7] - process_data[k][1]
+                            waiting_time = turnaround_time - process_data[k][2]
 
-    # response time 계산, 출력값 정리
-    waiting_time_list = []
-    turnaround_time_list = []
-    response_time_list = []
+                            response_time_list.append(response_time)
+                            waiting_time_list.append(waiting_time)
+                            turnaround_time_list.append(turnaround_time)
 
-    for p in process_list:
-        p.rt = ganttchart.index(p.p_id) - p.at # response time 계산
-        waiting_time_list.append(p.wt)
-        turnaround_time_list.append(p.tt)
-        response_time_list.append(p.rt)
+                            total_waiting_time += waiting_time
+                            total_turnaround_time += turnaround_time
+                            total_response_time += response_time
 
-    average_waiting_time = sum(waiting_time_list) / len(process_list)
-    average_turnaround_time = sum(turnaround_time_list) / len(process_list)
-    average_response_time = sum(response_time_list) / len(process_list)
+                average_waiting_time = total_waiting_time / len(process_data)
+                average_turnaround_time = total_turnaround_time / len(process_data)
+                average_response_time = total_response_time / len(process_data)
+
+                return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
 
 
-    return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time
+
+# 0: pid, 1: 도착시간, 2: burst_time, 3: 우선순위(낮은게 우선), 4: Time quantum
+data = [['p1',0,10,3,5],['p2',1,28,2,4], ['p3',2,6,4,3], ['p4',3,4,1,2], ['p5',4,14,2,1]] #example input
+ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time = schedulingNonpreemptivePriority(data)
+
+print("show the result-------------")
+print("pid\t\tAT\t\tBT\t\tPr\t\tTQ\t\tWT\t\tTT\t\tRT")
+for i in range(len(data)):
+    for j in range(len(data)):
+        print(data[i][j], end="\t\t")
+    print(waiting_time_list[i], end="\t\t")
+    print(turnaround_time_list[i], end="\t\t")
+    print(response_time_list[i], end="\t\t")
+    print()
+print("average_waiting_time:", average_waiting_time)
+print("average_turnaround_time:",average_turnaround_time)
+print("average_response_time:", average_response_time)
+
+
+
+
