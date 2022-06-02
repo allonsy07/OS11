@@ -139,13 +139,11 @@ def schedulingSRTF(data: List[List]):
             else: # idle일 경우 ready process를 바로 실행
                 is_running = ready_process[2]
 
-        ## 실행 결과 print
+        # 간트 차트 
         if is_running:
             ganttchart.append(is_running.p_id)
-            # print(time, is_running.p_id, is_running.bt) # 시간, PID, 남은 Burst time
         else:
             ganttchart.append('idle')
-            # print(time, 'Idle')
 
         # 프로세스 실행 상태 확인
         if is_running:
@@ -192,7 +190,7 @@ def schedulingRR(data: List[List]):
 
     # 필요한 자료구조 정의
     remaining_process = {} # 아직 큐에 들어가지 않은 프로세스를 저장하는 딕셔너리, arrive time : [프로세스, 프로세스, ...] 형태로 대응
-    ready_queue = Queue() # SRTF 준비 큐: 우선순위 큐, (remaining burst time, enqueued time, 프로세스 클래스) 형태로 enqueue
+    ready_queue = Queue() # RR 준비 큐: 큐, 프로세스 클래스 enqueue
 
     for p in process_list: # remaining process에 입력된 모든 프로세스 삽입
         if p.at not in remaining_process: # 해당 arrive time에 처음 있는 프로세스일 시
@@ -219,13 +217,11 @@ def schedulingRR(data: List[List]):
                     ready_queue.put(is_running) # 실행 중인 프로세스를 inturrupt하고 준비 큐에 삽입
                 is_running = ready_queue.get() # 준비 큐 가장 앞의 프로세스를 받아옵니다.
 
-        ## 실행 결과 print
+        # 간트 차트 삽입
         if is_running:
             ganttchart.append(is_running.p_id)
-            # print(time, is_running.p_id, is_running.bt) # 시간, PID, 남은 Burst time
         else:
             ganttchart.append('idle')
-            # print(time, 'Idle')
 
         # 프로세스 실행 상태 확인
         if is_running:
