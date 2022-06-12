@@ -385,6 +385,74 @@ def schedulingNPPwRR(data: List[Process]):
         else:
             continue
 
+    # calculate metrics
+    arrival_time_list = []
+    pid_list = []
+    last_start_dict = {}
+    last_start_time_list = []
+    last_end_dict = {}
+    last_end_time_list = []
+    first_start_dict = {}
+    first_start_time_list = []
+    waiting_time_list = []
+    turnaround_time_list = []
+    response_time_list = []
+
+    process_list = pp_process_list + rr_process_list
+
+    temp_list = []
+    for pl in process_list:
+        temp_list.append([pl.p_id, pl])
+    temp_list2 = sorted(temp_list, key=lambda x: x[0])
+    total_list = []
+    for tl in temp_list2:
+        total_list.append(tl[1])
+    for process in total_list:
+        arrival_time_list.append(process.at)
+        pid_list.append(process.p_id)
+    for i in range(len(ganttchart) - 1, -1, -1):
+        cur_pid = ganttchart[i]
+        if cur_pid not in last_end_dict.keys():
+            last_end_dict[cur_pid] = i
+        if i >= 1:
+            if cur_pid == ganttchart[i-1]: continue
+            else:
+                last_start_dict[cur_pid] = i
+        if i == 0:
+            last_start_dict[cur_pid] = 0
+    for idx, p in enumerate(ganttchart):
+        if p not in first_start_dict.keys():
+            first_start_dict[p] = idx
+    for i in sorted(first_start_dict.items()):
+        first_start_time_list.append(i[1])
+            
+    for i in range(len(ganttchart) - 1, -1 , -1):
+        cur_pid = ganttchart[i]
+
+    for i in sorted(last_start_dict.items()):
+        last_start_time_list.append(i[1])
+
+    for i in sorted(last_end_dict.items()):
+        last_end_time_list.append(i[1])
+    
+
+    for a, b in zip(last_start_time_list, arrival_time_list):
+        waiting_time_list.append(a - b)
+
+    for a, b in zip(last_end_time_list, arrival_time_list):
+        turnaround_time_list.append(a - b)
+
+    for a, b in zip(first_start_time_list, arrival_time_list):
+        response_time_list.append(a - b)
+
+    average_waiting_time = sum(waiting_time_list) / len(process_list)
+    average_turnaround_time = sum(turnaround_time_list) / len(process_list)
+    average_response_time = sum(response_time_list) / len(process_list)
+
+
+    return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time    
+
+
 def schedulingSJF(data: List[List]):
     # 입력을 프로세스 클래스로 바꾸어서 리스트에 정리
     process_list = []
