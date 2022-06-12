@@ -312,8 +312,6 @@ def schedulingNPPwRR(data: List[Process]):
             if available_process:
                 for p1 in available_process:
                     for p2 in available_process[p1]:
-                        print("DEVUGING")
-                        print(p2[2].p_id, time)
                         p2[2].wt += time
                 
             time += burst_time
