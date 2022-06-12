@@ -267,7 +267,14 @@ def schedulingRR(data: List[List]):
 def schedulingNPPwRR(data: List[Process]):
 
     ganttchart = []
+
+    process_list = []
+    arrival_time_list = []
+
+    same_prt = False
+
     remaining_process = {}
+    ready_queue = PriorityQueue()
 
     for d in data: 
         if d[1] in remaining_process.keys():
@@ -277,6 +284,7 @@ def schedulingNPPwRR(data: List[Process]):
     
     for at in remaining_process.keys():
         remaining_process[at] = sorted(remaining_process[at], key= lambda x: x[2])
+
 
     time = 0
     running_process = None 
@@ -298,14 +306,23 @@ def schedulingNPPwRR(data: List[Process]):
                 continue
         for rm_at in rm_list:
             remaining_process.pop(rm_at)
+        
+
+        if len(available_process) == 0:
+            ganttchart.append("idle")
+            time += 1
+            continue
 
         available_process = collections.OrderedDict(sorted(available_process.items()))
+
         highest_priority = list(available_process.keys())[0]
+
 
         if len(available_process[highest_priority]) == 1:
             for pl in available_process[highest_priority]:
                 pp_process_list.append(pl[2])
             running_process = available_process[highest_priority][0]
+
 
             burst_time = running_process[1]
 
@@ -327,6 +344,7 @@ def schedulingNPPwRR(data: List[Process]):
 
 
         elif len(available_process[highest_priority]) >= 2:
+            same_prt = True
             rr_process_list = []
             for pl in available_process[highest_priority]:
                 rr_process_list.append(pl[2])
@@ -398,7 +416,8 @@ def schedulingNPPwRR(data: List[Process]):
     turnaround_time_list = []
     response_time_list = []
 
-    process_list = pp_process_list + rr_process_list
+    if same_prt: process_list = pp_process_list + rr_process_list
+    else: process_list = pp_process_list
 
     temp_list = []
     for pl in process_list:
