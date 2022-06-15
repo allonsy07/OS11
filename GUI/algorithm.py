@@ -1,6 +1,7 @@
 from typing import List
 from queue import Queue, PriorityQueue # 우선순위 큐
 from rr import round_robin
+import collections
 
 # 프로세스 클래스 정의
 class Process:
@@ -264,73 +265,204 @@ def schedulingRR(data: List[List]):
     return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time 
 
 def schedulingNPPwRR(data: List[Process]):
+
     ganttchart = []
 
     process_list = []
     arrival_time_list = []
 
+    same_prt = False
+
     remaining_process = {}
     ready_queue = PriorityQueue()
 
-    for d in data:
-        process = Process(d)
-        process_list.append(process)
-
-    for p in process_list:
-        if p.at not in remaining_process:
-            remaining_process[p.at] = [p]
-            arrival_time_list.append(p.at)
+    for d in data: 
+        if d[1] in remaining_process.keys():
+            remaining_process[d[1]].append([d[0], d[2], d[3], Process(d)])
         else:
-            remaining_process[p.at].append(p)
+            remaining_process[d[1]] = [[d[0], d[2], d[3], Process(d)]]
+    
+    for at in remaining_process.keys():
+        remaining_process[at] = sorted(remaining_process[at], key= lambda x: x[2])
 
-    for a in arrival_time_list:
-        remaining_process[a] = sorted(remaining_process[a], key = lambda x: x.prt, reverse = True)
 
-    # start this algorithm
     time = 0
-    is_running = None 
-    time_quantum = data[0][4]    
+    running_process = None 
+    time_quantum = data[0][4]   
+    available_process = {} 
 
-    while is_running or remaining_process or not ready_queue.empty():
-        if time in remaining_process:
-            for p in remaining_process[time]:
-                ready_queue.put((p.bt, time, p))
-            del remaining_process[time]
-
-        if not ready_queue.empty():
-            ready_process = ready_queue.get()
-            if is_running: # 우선순위를 비교해보자!
-                if ready_process[2].prt == is_running.prt: # 우선순위가 같다!
-                    same_priority = [is_running, ready_process[2]]
-                    round_robin(same_priority, time_quantum)
+    pp_process_list = []
+    while running_process or remaining_process or available_process:
+        rm_list = []
+        for at in remaining_process.keys():
+            if time >= at:
+                prc = remaining_process[at][0]
+                if prc[2] in available_process.keys():
+                    available_process[prc[2]].append([prc[0], prc[1], prc[3]])
                 else:
-                    ready_queue.put(ready_process)
+                    available_process[prc[2]] = [[prc[0], prc[1], prc[3]]]
+                rm_list.append(at)
             else:
-                is_running = ready_process[2]
-        if is_running:
-            ganttchart.append(is_running.p_id)
-        else:
-            ganttchart.append("idle")
-        if is_running:
-            is_running.bt -= 1
-            if is_running.bt == 0:
-                is_running.tt = (time + 1) - is_running.at
-                is_running = None
-        for p in process_list:
-            if p is not is_running and p.bt > 0 and p.at <= time:
-                p.wt += 1
-        time += 1
+                continue
+        for rm_at in rm_list:
+            remaining_process.pop(rm_at)
+        
 
-    # response time 계산, 출력값 정리
+        if len(available_process) == 0:
+            ganttchart.append("idle")
+            time += 1
+            continue
+
+        available_process = collections.OrderedDict(sorted(available_process.items()))
+
+        highest_priority = list(available_process.keys())[0]
+
+
+        if len(available_process[highest_priority]) == 1:
+            for pl in available_process[highest_priority]:
+                pp_process_list.append(pl[2])
+            running_process = available_process[highest_priority][0]
+
+
+            burst_time = running_process[1]
+
+            if available_process:
+                for p1 in available_process:
+                    for p2 in available_process[p1]:
+                        p2[2].wt += time
+                
+            time += burst_time
+            running_process[2].tt = (time + 1) - running_process[2].at
+
+            if(running_process): 
+                for _ in range(burst_time):
+                    ganttchart.append(running_process[2].p_id)
+            else: ganttchart.append("idle")
+
+            running_process = None
+            del available_process[highest_priority]
+
+
+        elif len(available_process[highest_priority]) >= 2:
+            same_prt = True
+            rr_process_list = []
+            for pl in available_process[highest_priority]:
+                rr_process_list.append(pl[2])
+        
+            rr_remaining_process = {}
+            rr_ready_queue = Queue()
+
+            for p in rr_process_list:
+                if p.at not in rr_remaining_process:
+                    rr_remaining_process[p.at] = [p]
+                else:
+                    rr_remaining_process[p.at].append(p)
+    
+            time_tq = 0
+            is_running = None
+            tq = time_quantum
+
+
+            while is_running or rr_remaining_process or not rr_ready_queue.empty():
+                rr_remove_list = []
+                for i in rr_remaining_process.keys():
+                    rr_ready_queue.put(rr_remaining_process[i][0])
+                    rr_remove_list.append(i)
+                for r in rr_remove_list:
+                    del rr_remaining_process[r]
+
+                if time_tq % tq == 0 or not is_running:
+                    if not rr_ready_queue.empty():
+                        if is_running:
+                            rr_ready_queue.put(is_running)
+                        is_running = rr_ready_queue.get()
+                
+                if is_running:
+                    ganttchart.append(is_running.p_id)
+                else:
+                    ganttchart.append('idle')
+                
+                if is_running:
+                    is_running.bt -= 1
+                    if is_running.bt == 0:
+                        for idx, pl in enumerate(available_process[highest_priority]):
+                            if pl[0] == is_running.p_id:
+                                del available_process[highest_priority][idx]
+                        is_running.tt = (time + 1) - is_running.at
+                        is_running = None
+                        time_tq = 0
+                
+                for p in rr_process_list:
+                    if p is not is_running and p.bt > 0 and p.at <= time:
+                        p.wt += 1
+                time += 1
+                if is_running:
+                    time_tq += 1
+            del available_process[highest_priority]
+
+        else:
+            continue
+
+    # calculate metrics
+    arrival_time_list = []
+    pid_list = []
+    last_start_dict = {}
+    last_start_time_list = []
+    last_end_dict = {}
+    last_end_time_list = []
+    first_start_dict = {}
+    first_start_time_list = []
     waiting_time_list = []
     turnaround_time_list = []
     response_time_list = []
 
-    for p in process_list:
-        p.rt = ganttchart.index(p.p_id) - p.at # response time 계산
-        waiting_time_list.append(p.wt)
-        turnaround_time_list.append(p.tt)
-        response_time_list.append(p.rt)
+    if same_prt: process_list = pp_process_list + rr_process_list
+    else: process_list = pp_process_list
+
+    temp_list = []
+    for pl in process_list:
+        temp_list.append([pl.p_id, pl])
+    temp_list2 = sorted(temp_list, key=lambda x: x[0])
+    total_list = []
+    for tl in temp_list2:
+        total_list.append(tl[1])
+    for process in total_list:
+        arrival_time_list.append(process.at)
+        pid_list.append(process.p_id)
+    for i in range(len(ganttchart) - 1, -1, -1):
+        cur_pid = ganttchart[i]
+        if cur_pid not in last_end_dict.keys():
+            last_end_dict[cur_pid] = i
+        if i >= 1:
+            if cur_pid == ganttchart[i-1]: continue
+            else:
+                last_start_dict[cur_pid] = i
+        if i == 0:
+            last_start_dict[cur_pid] = 0
+    for idx, p in enumerate(ganttchart):
+        if p not in first_start_dict.keys():
+            first_start_dict[p] = idx
+    for i in sorted(first_start_dict.items()):
+        first_start_time_list.append(i[1])
+            
+    for i in range(len(ganttchart) - 1, -1 , -1):
+        cur_pid = ganttchart[i]
+
+    for i in sorted(last_start_dict.items()):
+        last_start_time_list.append(i[1])
+
+    for i in sorted(last_end_dict.items()):
+        last_end_time_list.append(i[1])
+    
+
+    for a, b in zip(last_start_time_list, arrival_time_list):
+        waiting_time_list.append(a - b)
+
+    for a, b in zip(last_end_time_list, arrival_time_list):
+        turnaround_time_list.append(a - b)
+
+    for a, b in zip(first_start_time_list, arrival_time_list):
+        response_time_list.append(a - b)
 
     average_waiting_time = sum(waiting_time_list) / len(process_list)
     average_turnaround_time = sum(turnaround_time_list) / len(process_list)
@@ -338,6 +470,7 @@ def schedulingNPPwRR(data: List[Process]):
 
 
     return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time    
+
 
 def schedulingSJF(data: List[List]):
     # 입력을 프로세스 클래스로 바꾸어서 리스트에 정리
