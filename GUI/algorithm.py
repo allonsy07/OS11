@@ -275,22 +275,27 @@ def schedulingNPPwRR(data: List[Process]):
 
     remaining_process = {}
     ready_queue = PriorityQueue()
+    inputs = []
 
-    for d in data: 
+    for i, d in enumerate(data): 
+        inputs.append([i, d[0]])
         if d[1] in remaining_process.keys():
             remaining_process[d[1]].append([d[0], d[2], d[3], Process(d)])
         else:
             remaining_process[d[1]] = [[d[0], d[2], d[3], Process(d)]]
-    
+    inputs = sorted(inputs, key=lambda x: x[1])
+    for i in range(len(inputs)):
+        inputs[i].append(i) # 들어온 순서, Pid, sorted 된 index
+    inputs = sorted(inputs, key=lambda x: x[0])
+    input_seq = [x[2] for x in inputs]
+
     for at in remaining_process.keys():
         remaining_process[at] = sorted(remaining_process[at], key= lambda x: x[2])
-
 
     time = 0
     running_process = None 
     time_quantum = data[0][4]   
     available_process = {} 
-
     pp_process_list = []
     while running_process or remaining_process or available_process:
         rm_list = []
@@ -317,7 +322,6 @@ def schedulingNPPwRR(data: List[Process]):
 
         highest_priority = list(available_process.keys())[0]
 
-
         if len(available_process[highest_priority]) == 1:
             for pl in available_process[highest_priority]:
                 pp_process_list.append(pl[2])
@@ -343,6 +347,7 @@ def schedulingNPPwRR(data: List[Process]):
             del available_process[highest_priority]
 
 
+
         elif len(available_process[highest_priority]) >= 2:
             same_prt = True
             rr_process_list = []
@@ -361,6 +366,7 @@ def schedulingNPPwRR(data: List[Process]):
             time_tq = 0
             is_running = None
             tq = time_quantum
+
 
 
             while is_running or rr_remaining_process or not rr_ready_queue.empty():
@@ -403,7 +409,8 @@ def schedulingNPPwRR(data: List[Process]):
         else:
             continue
 
-    # calculate metric
+
+
     arrival_time_list = []
     pid_list = []
     last_start_dict = {}
@@ -412,9 +419,9 @@ def schedulingNPPwRR(data: List[Process]):
     last_end_time_list = []
     first_start_dict = {}
     first_start_time_list = []
-    waiting_time_list = []
-    turnaround_time_list = []
-    response_time_list = []
+    waiting_time_lst = []
+    turnaround_time_lst = []
+    response_time_lst = []
 
     if same_prt: process_list = pp_process_list + rr_process_list
     else: process_list = pp_process_list
@@ -424,6 +431,7 @@ def schedulingNPPwRR(data: List[Process]):
         temp_list.append([pl.p_id, pl])
     temp_list2 = sorted(temp_list, key=lambda x: x[0])
     total_list = []
+
     for tl in temp_list2:
         total_list.append(tl[1])
     for process in total_list:
@@ -466,19 +474,26 @@ def schedulingNPPwRR(data: List[Process]):
             last_end_time_list.append(i[1])
 
     for a, b in zip(last_start_time_list, arrival_time_list):
-        waiting_time_list.append(a - b)
+        waiting_time_lst.append(a - b)
 
     for a, b in zip(last_end_time_list, arrival_time_list):
-        turnaround_time_list.append(a - b)
+        turnaround_time_lst.append(a - b)
 
     for a, b in zip(first_start_time_list, arrival_time_list):
-        response_time_list.append(a - b)
+        response_time_lst.append(a - b)
 
-    average_waiting_time = sum(waiting_time_list) / len(process_list)
-    average_turnaround_time = sum(turnaround_time_list) / len(process_list)
-    average_response_time = sum(response_time_list) / len(process_list)
+    average_waiting_time = sum(waiting_time_lst) / len(process_list)
+    average_turnaround_time = sum(turnaround_time_lst) / len(process_list)
+    average_response_time = sum(response_time_lst) / len(process_list)
 
+    waiting_time_list = []
+    turnaround_time_list = []
+    response_time_list = []
 
+    for i in input_seq:
+        waiting_time_list.append(waiting_time_lst[i])
+        turnaround_time_list.append(turnaround_time_lst[i])
+        response_time_list.append(response_time_lst[i])
     return ganttchart, waiting_time_list, turnaround_time_list, response_time_list, average_waiting_time, average_turnaround_time, average_response_time    
 
 
