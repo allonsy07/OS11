@@ -403,7 +403,7 @@ def schedulingNPPwRR(data: List[Process]):
         else:
             continue
 
-    # calculate metrics
+    # calculate metric
     arrival_time_list = []
     pid_list = []
     last_start_dict = {}
@@ -429,6 +429,7 @@ def schedulingNPPwRR(data: List[Process]):
     for process in total_list:
         arrival_time_list.append(process.at)
         pid_list.append(process.p_id)
+
     for i in range(len(ganttchart) - 1, -1, -1):
         cur_pid = ganttchart[i]
         if cur_pid not in last_end_dict.keys():
@@ -442,18 +443,27 @@ def schedulingNPPwRR(data: List[Process]):
     for idx, p in enumerate(ganttchart):
         if p not in first_start_dict.keys():
             first_start_dict[p] = idx
+
     for i in sorted(first_start_dict.items()):
-        first_start_time_list.append(i[1])
+        if i[0] == 'idle':
+            continue
+        else:
+            first_start_time_list.append(i[1])
             
     for i in range(len(ganttchart) - 1, -1 , -1):
         cur_pid = ganttchart[i]
 
     for i in sorted(last_start_dict.items()):
-        last_start_time_list.append(i[1])
+        if i[0] == 'idle':
+            continue
+        else:
+            last_start_time_list.append(i[1])
 
     for i in sorted(last_end_dict.items()):
-        last_end_time_list.append(i[1])
-    
+        if i[0] == 'idle':
+            continue
+        else:
+            last_end_time_list.append(i[1])
 
     for a, b in zip(last_start_time_list, arrival_time_list):
         waiting_time_list.append(a - b)
